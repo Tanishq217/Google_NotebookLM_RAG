@@ -1,11 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // pdf-parse uses some node.js built-ins that need to run server-side only
-  // this tells Next.js to not bundle those for the edge runtime
+  // pdf-parse reads test fixtures from disk at import time which breaks
+  // Turbopack's static analysis. Marking it as external skips bundling it.
   serverExternalPackages: ["pdf-parse"],
-
-  // increase the body size limit for file uploads (default is 4MB)
-  experimental: {},
 };
 
 export default nextConfig;

@@ -11,11 +11,6 @@ import { embedTexts } from "@/lib/embedder";
 import { upsertChunks, clearNamespace } from "@/lib/pinecone";
 import crypto from "crypto";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 export async function POST(req) {
   try {
