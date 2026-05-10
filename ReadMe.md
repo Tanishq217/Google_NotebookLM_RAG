@@ -11,7 +11,7 @@ So if you ask something that isn't in the document, it'll tell you it doesn't se
 ## Tech used
 
 - **Next.js** (App Router) for the web app
-- **Google Gemini** — `gemini-embedding-001` for embeddings, `gemini-1.5-flash` for generation
+- **Google Gemini** — `gemini-embedding-001` for embeddings, `gemini-2.5-flash` for generation
 - **Pinecone** serverless for vector storage
 - **pdf-parse** to pull text out of PDFs
 
@@ -34,7 +34,7 @@ app/
 lib/
   chunker.js            fixed-size chunking with overlap
   embedder.js           Gemini embedding wrapper
-  parser.js             PDF and TXT text extraction
+  parser.js             PDF, CSV, and TXT text extraction
   pinecone.js           Pinecone client, upsert, query, clear
 ```
 
@@ -63,10 +63,10 @@ Open `http://localhost:3000`.
 
 ## Live demo
 
-[Deployed on Vercel →](https://notebooklm-rag.vercel.app)
+[Deployed on Vercel →](https://google-notebookrag.vercel.app/)
 
 ## Notes
 
-- Works best with text-based PDFs (not scanned/image PDFs)
+- Works best with text-based PDFs, text files, and CSVs
 - Each uploaded file gets its own Pinecone namespace, so multiple docs don't interfere
 - Files up to ~10 MB work fine
