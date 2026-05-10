@@ -37,9 +37,9 @@ export default function HomePage() {
   const handleFileSelect = async (file) => {
     if (!file) return;
 
-    const allowed = ["application/pdf", "text/plain"];
+    const allowed = ["application/pdf", "text/plain", "text/csv"];
     if (!allowed.includes(file.type)) {
-      setUploadError("Only PDF and .txt files are supported.");
+      setUploadError("Only PDF, .txt, and .csv files are supported.");
       return;
     }
 
@@ -205,7 +205,7 @@ export default function HomePage() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".pdf,.txt"
+                    accept=".pdf,.txt,.csv"
                     onChange={handleFileInputChange}
                     id="file-upload-input"
                   />
@@ -215,6 +215,7 @@ export default function HomePage() {
                   <div className="file-types">
                     <span className="file-type-badge">PDF</span>
                     <span className="file-type-badge">TXT</span>
+                    <span className="file-type-badge">CSV</span>
                   </div>
                 </div>
                 {uploadError && (
@@ -324,7 +325,7 @@ export default function HomePage() {
                 <p className="empty-subtitle">
                   {uploadStatus === "done"
                     ? "I'll answer from the document's actual content — no hallucinations."
-                    : "Supports PDF and plain text files up to 10 MB."}
+                    : "Supports PDF, CSV and plain text files up to 10 MB."}
                 </p>
               </div>
             ) : (

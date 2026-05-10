@@ -30,6 +30,7 @@ export async function POST(req) {
     console.log(`Processing: ${fileName} | docId: ${docId}`);
 
     const rawText = await extractText(buffer, mimeType);
+    console.log(`Extracted text length: ${rawText?.length}`);
 
     if (!rawText || rawText.trim().length < 50) {
       return NextResponse.json(
@@ -41,11 +42,27 @@ export async function POST(req) {
     const chunks = chunkText(rawText);
     console.log(`Got ${chunks.length} chunks`);
 
+    if (chunks.length === 0) {
+      return NextResponse.json(
+        { error: "Document couldn't be split into chunks. Try a different file." },
+        { status: 422 }
+      );
+    }
+
     // wipe old data for this doc before re-indexing
     await clearNamespace(docId);
 
     const chunkTexts = chunks.map((c) => c.text);
     const embeddings = await embedTexts(chunkTexts);
+    const validCount = embeddings.filter((e) => e && e.length > 0).length;
+    console.log(`Embeddings: ${embeddings.length} total, ${validCount} valid (dim: ${embeddings[0]?.length})`);
+
+    if (validCount === 0) {
+      return NextResponse.json(
+        { error: "Embedding failed — got no vectors back. Check your GEMINI_API_KEY." },
+        { status: 500 }
+      );
+    }
 
     await upsertChunks(docId, chunks, embeddings);
 
