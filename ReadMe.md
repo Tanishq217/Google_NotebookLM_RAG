@@ -1,5 +1,7 @@
 # NotebookLM RAG
 
+**Live Demo:** [https://google-notebookrag.vercel.app/](https://google-notebookrag.vercel.app/)
+
 My own version of Google NotebookLM — upload a PDF or text file, ask questions, get answers that come from the actual document.
 
 ## What it does
@@ -61,9 +63,6 @@ Open `http://localhost:3000`.
 
 **Pinecone setup:** Create a free Serverless index named `notebooklm-rag`, 3072 dimensions, cosine metric (AWS us-east-1). The app will auto-create it if it doesn't exist yet.
 
-## Live demo
-
-[Deployed on Vercel →](https://google-notebookrag.vercel.app/)
 
 ## Notes
 
