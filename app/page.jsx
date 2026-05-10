@@ -1,12 +1,7 @@
 "use client";
 
-// app/page.jsx
-// Main page — two-panel layout with upload on the left and chat on the right.
-// All state lives here and gets passed down to child components.
-
 import { useState, useRef, useEffect } from "react";
 
-// suggested questions to show after upload — just to help the user get started
 const SAMPLE_QUESTIONS = [
   "What is the main topic of this document?",
   "Summarize the key points",
@@ -14,14 +9,12 @@ const SAMPLE_QUESTIONS = [
 ];
 
 export default function HomePage() {
-  // document state
-  const [docInfo, setDocInfo] = useState(null); // { docId, fileName, chunkCount }
-  const [uploadStatus, setUploadStatus] = useState("idle"); // idle | uploading | done | error
-  const [uploadStep, setUploadStep] = useState(0); // which processing step we're on
+  const [docInfo, setDocInfo] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("idle");
+  const [uploadStep, setUploadStep] = useState(0);
   const [uploadError, setUploadError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
 
-  // chat state
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [isThinking, setIsThinking] = useState(false);
@@ -31,19 +24,15 @@ export default function HomePage() {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isThinking]);
 
-  // auto-resize textarea as user types
   const handleTextareaChange = (e) => {
     setQuestion(e.target.value);
     e.target.style.height = "auto";
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
   };
-
-  // ---------- Upload logic ----------
 
   const handleFileSelect = async (file) => {
     if (!file) return;
@@ -67,14 +56,12 @@ export default function HomePage() {
     formData.append("file", file);
 
     try {
-      // fake a small delay so steps feel more real
       await delay(600);
-      setUploadStep(2); // chunking
+      setUploadStep(2);
 
       await delay(400);
-      setUploadStep(3); // embedding
+      setUploadStep(3);
 
-      // actually kick off the upload (embedding happens server-side)
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -125,8 +112,6 @@ export default function HomePage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // ---------- Chat logic ----------
-
   const sendMessage = async (text) => {
     const q = text || question;
     if (!q.trim() || !docInfo || isThinking) return;
@@ -137,7 +122,6 @@ export default function HomePage() {
     setChatError("");
     setIsThinking(true);
 
-    // reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -162,7 +146,6 @@ export default function HomePage() {
 
     } catch (err) {
       setChatError(err.message || "Couldn't get an answer. Try again.");
-      // remove the user message if we failed so it's not orphaned
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsThinking(false);
@@ -175,8 +158,6 @@ export default function HomePage() {
       sendMessage();
     }
   };
-
-  // ---------- Render ----------
 
   const processingSteps = [
     "Extracting text from document",

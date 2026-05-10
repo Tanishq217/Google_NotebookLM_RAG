@@ -1,9 +1,3 @@
-// app/api/chat/route.js
-// The retrieval + generation endpoint.
-// Takes a question and a docId, finds the most relevant chunks
-// from Pinecone, then sends them to Gemini as context for a grounded answer.
-// Uses streaming so the response appears word-by-word in the UI.
-
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { embedQuery } from "@/lib/embedder";
@@ -22,37 +16,32 @@ export async function POST(req) {
       );
     }
 
-    // step 1 — embed the user's question
+    // embed the question and pull the top 5 relevant chunks
     const queryVector = await embedQuery(question);
-
-    // step 2 — retrieve top 5 most relevant chunks from Pinecone
     const relevantChunks = await querySimilar(docId, queryVector, 5);
 
     if (relevantChunks.length === 0) {
       return NextResponse.json({
-        answer: "I couldn't find relevant information in the document to answer that question.",
+        answer: "I couldn't find anything relevant in the document to answer that.",
         sources: [],
       });
     }
 
-    // step 3 — build the RAG prompt
-    // the key here is we explicitly tell the model to ONLY use the provided context
+    // build context block from retrieved chunks
     const context = relevantChunks
-      .map((chunk, i) => `[Source ${i + 1}]\n${chunk.text}`)
+      .map((chunk, i) => `[Excerpt ${i + 1}]\n${chunk.text}`)
       .join("\n\n");
 
-    const systemPrompt = `You are a document assistant. Your job is to answer questions strictly based on the provided document context below.
+    // system prompt — keep the model honest and document-grounded
+    const systemPrompt = `You're helping someone understand a document they uploaded. Use only the excerpts below to answer. Don't pull from your own training data or general knowledge.
 
-Rules:
-- Only use information from the provided context
-- If the answer isn't in the context, say "I don't see that information in the uploaded document"
-- Be concise but complete
-- Quote or reference specific parts of the document when helpful
+If the answer isn't clearly in the excerpts, just say you don't see that in the document. Don't guess.
 
-Document Context:
+Keep answers clear and to the point. If a specific part of the document is relevant, quote it or point to it.
+
+Document excerpts:
 ${context}`;
 
-    // step 4 — generate the answer using Gemini Flash
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
       systemInstruction: systemPrompt,
